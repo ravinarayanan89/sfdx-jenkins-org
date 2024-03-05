@@ -1,5 +1,5 @@
 public with sharing class MyClass {
-	public MyClass() {
+	public MyClass() { //Adding comment
 
 	}
 
