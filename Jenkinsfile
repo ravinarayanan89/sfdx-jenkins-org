@@ -17,6 +17,11 @@ node {
     // Check out code from source control.
     // -------------------------------------------------------------------------
 
+	environment {
+
+    PATH = "C:\\WINDOWS\\SYSTEM32"
+
+}
     stage('checkout source') {
         checkout scm
     }
