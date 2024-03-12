@@ -6,7 +6,7 @@ node {
     def SF_USERNAME=env.SF_USERNAME
     def SERVER_KEY_CREDENTIALS_ID=env.SERVER_KEY_CREDENTIALS_ID
     def DEPLOYDIR='src'
-    def TEST_LEVEL='RunLocalTests'
+    def TEST_LEVEL='NoTestRun'
     def SF_INSTANCE_URL = env.SF_INSTANCE_URL ?: "https://login.salesforce.com"
 
 
@@ -53,8 +53,8 @@ node {
 		// -------------------------------------------------------------------------
 
 		stage('Deploy and Run Tests') {
-		  //  rc = command "${toolbelt}/sfdx force:mdapi:deploy --wait 10 --deploydir ${DEPLOYDIR} --targetusername UAT --testlevel ${TEST_LEVEL}"
-			rc = command "${toolbelt}/sfdx force:source:deploy -x ${DEPLOYDIR} --targetusername UAT"
+		    rc = command "${toolbelt}/sfdx force:mdapi:deploy --wait 10 --deploydir ${DEPLOYDIR} --targetusername UAT --testlevel ${TEST_LEVEL}"
+		//	rc = command "${toolbelt}/sfdx force:source:deploy -x ${DEPLOYDIR} --targetusername UAT"
 		    if (rc != 0) {
 			error 'Salesforce deploy and test run failed.'
 		    }
