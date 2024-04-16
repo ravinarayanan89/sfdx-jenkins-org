@@ -22,6 +22,10 @@ node {
     PATH = "C:\\WINDOWS\\SYSTEM32"
 
 }
+
+
+
+		
     stage('checkout source') {
         checkout scm
     }
@@ -40,6 +44,7 @@ node {
 		// -------------------------------------------------------------------------
 
 		stage('Authorize to Salesforce') {
+				rc = command "sfdx plugins:install sfdx-git-delta"
 			rc = command "echo %PATH%"
 			rc = command "${toolbelt}/sfdx auth:jwt:grant --instanceurl ${SF_INSTANCE_URL} --clientid ${SF_CONSUMER_KEY} --jwtkeyfile ${server_key_file} --username ${SF_USERNAME} --setalias UAT"
 		    if (rc != 0) {
@@ -52,14 +57,31 @@ node {
 		// Deploy metadata and execute unit tests.
 		// -------------------------------------------------------------------------
 
-		stage('Deploy and Run Tests') {
-		    rc = command "${toolbelt}/sfdx force:mdapi:deploy --wait 10 --deploydir ${DEPLOYDIR} --targetusername UAT --testlevel ${TEST_LEVEL}"
+		stage('Download the Main') {
+		    rc = command "git checkout main"
 		//	rc = command "${toolbelt}/sfdx force:source:deploy -x ${DEPLOYDIR} --targetusername UAT"
 		    if (rc != 0) {
 			error 'Salesforce deploy and test run failed.'
 		    }
 		}
 
+		
+		stage('Download the difference') {
+		    rc = command "${toolbelt}/sfdx sgd:source:delta --to development3 --from main --output ."
+		//	rc = command "${toolbelt}/sfdx force:source:deploy -x ${DEPLOYDIR} --targetusername UAT"
+		    if (rc != 0) {
+			error 'Salesforce deploy and test run failed.'
+		    }
+		}
+
+
+		stage('Deploy to Salesforce') {
+		    rc = command "${toolbelt}/sfdx force:source:deploy -x package/package.xml --postdestructivechanges destructiveChanges/destructiveChanges.xml --targetusername UAT"
+		//	rc = command "${toolbelt}/sfdx force:source:deploy -x ${DEPLOYDIR} --targetusername UAT"
+		    if (rc != 0) {
+			error 'Salesforce deploy and test run failed.'
+		    }
+		}
 
 		// -------------------------------------------------------------------------
 		// Example shows how to run a check-only deploy.
